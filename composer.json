@@ -1,0 +1,16 @@
+{
+    "name": "dbohn/thermometer",
+    "description": "Display data from the greenhouse thermometer on an epaper",
+    "authors": [
+        {
+            "name": "David Bohn",
+            "email": "me@david-bohn.de"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Thermometer\\": "src/"
+        }
+    }
+}
