@@ -1,6 +1,7 @@
 <?php
 
 use React\EventLoop\Factory;
+use Thermometer\Display\Button;
 use Thermometer\Display\Screen;
 
 require_once "vendor/autoload.php";
@@ -30,6 +31,12 @@ function createImage($width, $height)
 }
 
 $screen = new Screen($width, $height);
+
+$button = new Button();
+$button->register(function () use ($screen) {
+    echo "Button pressed!";
+    $screen->draw(createImage($screen->getWidth(), $screen->getHeight()));
+}, Button::KEY1, Button::EDGE_RISING);
 
 $screen->clear();
 
