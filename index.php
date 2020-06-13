@@ -1,70 +1,51 @@
 <?php
 
+use React\EventLoop\Factory;
+use Thermometer\Display\Screen;
+
 require_once "vendor/autoload.php";
 
 $width = 176;
 $height = 264;
 
-/*$image = imagecreatetruecolor($width, $height);
+function createImage($width, $height)
+{
+    $im = new Imagick();
+    $im->setColorSpace(Imagick::COLORSPACE_GRAY);
+    $im->newImage($width, $height, new ImagickPixel('white'));
+    $im->setImageFormat('GRAY');
 
-$black = imagecolorallocate($image, 0, 0, 0);
-$white = imagecolorallocate($image, 255, 255, 255);
+    $text = date("d.m.Y H:i:s");
 
-imagefill($image, 0, 0, $white);
-imagestring($image, 5, 5, 5, 'Test String', $black);
+    $draw = new ImagickDraw();
+    //$draw->setFont('Arial');
+    $draw->setFontSize(14);
+    $draw->setFillColor('black');
 
-// Convert image to grayscale
-imagetruecolortopalette($image, false, 2);
+    $im->annotateImage($draw, 10, 20, 0, $text);
 
-ob_start();
-imagebmp($image, null, false);
-$stringdata = ob_get_contents();
-ob_end_clean();
+    $im->posterizeImage(2, true);
+    $im->setImageDepth(1);
+    return $im->getImageBlob();
+}
 
-imagedestroy($image);*/
+$screen = new Screen($width, $height);
 
-/*$im = new Imagick();
-$im->setColorSpace(Imagick::COLORSPACE_GRAY);
-$im->newImage($width, $height, new ImagickPixel('black'));
-$im->setImageFormat('MONO');
-$im->setImageType(Imagick::IMGTYPE_BILEVEL);
+$screen->clear();
 
-$text = "Hello World";
+$loop = Factory::create();
 
-$draw = new ImagickDraw();
-//$draw->setFont('Arial');
-$draw->setFontSize(20);
-$draw->setFillColor('white');
+$loop->addPeriodicTimer(60, function () use ($screen) {
+    $screen->draw(createImage($screen->getWidth(), $screen->getHeight()));
+});
 
-$im->annotateImage($draw, 10, 20, 0, $text);
+$loop->addSignal(SIGINT, function () use ($screen, $loop) {
+    echo "Set display into sleep mode" . PHP_EOL;
+    $screen->sleep();
+    echo "Bye!" . PHP_EOL;
+    $loop->stop();
+});
 
-$im->posterizeImage(2, false);
-$im->setImageDepth(1);
-//$im->writeimage('test-imagick.bmp');
-//file_put_contents('mono-image', $im->getImageBlob());
-$imageData = $im->getImageBlob();*/
+$screen->draw(createImage($screen->getWidth(), $screen->getHeight()));
 
-$imageData = require_once 'image_blob.php';
-
-$imageData = implode(array_map("chr", $imageData));
-
-$ffi = FFI::load(__DIR__ . '/epaper/src/libepaper.h');
-echo "Initializing" . PHP_EOL;
-$ffi->DEV_Module_Init();
-$ffi->EPD_2IN7_Init();
-
-echo "Clearing" . PHP_EOL;
-$ffi->EPD_2IN7_Clear();
-
-$bufferType = FFI::arrayType(FFI::type("uint8_t"), [strlen($imageData)]);
-
-$buffer = FFI::new($bufferType);
-
-FFI::memcpy($buffer, $imageData, strlen($imageData));
-
-$ffi->EPD_2IN7_Display($buffer);
-
-echo "Sleeping" . PHP_EOL;
-$ffi->EPD_2IN7_Sleep();
-
-echo "Now we are done!" . PHP_EOL;
+$loop->run();

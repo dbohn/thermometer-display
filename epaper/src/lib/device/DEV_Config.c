@@ -165,7 +165,7 @@ static int DEV_Equipment_Testing(void)
 	int fd;
 	char value_str[20];
 	fd = open("/etc/issue", O_RDONLY);
-    printf("Current environment: ");
+    //printf("Current environment: ");
 	while(1) {
 		if (fd < 0) {
 			//Debug( "Read failed Pin\n");

@@ -7,7 +7,9 @@
             "email": "me@david-bohn.de"
         }
     ],
-    "require": {},
+    "require": {
+        "react/event-loop": "^1.1"
+    },
     "autoload": {
         "psr-4": {
             "Thermometer\\": "src/"

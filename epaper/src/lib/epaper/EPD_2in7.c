@@ -237,7 +237,7 @@ parameter:
 ******************************************************************************/
 static void EPD_2in7_ReadBusy(void)
 {
-    printf("e-Paper busy\r\n");
+    //printf("e-Paper busy\r\n");
     UBYTE busy;
     do {
         EPD_2in7_SendCommand(0x71);
@@ -245,7 +245,7 @@ static void EPD_2in7_ReadBusy(void)
         busy =!(busy & 0x01);
     } while(busy);
     DEV_Delay_ms(200);
-    printf("e-Paper busy release\r\n");
+    //printf("e-Paper busy release\r\n");
 }
 
 /******************************************************************************
