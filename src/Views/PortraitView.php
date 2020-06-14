@@ -11,6 +11,6 @@ class PortraitView extends BackdropView
 
     public function annotate(): void
     {
-        $this->addString("Hallo Welt", 10, 240 - 14);
+        $this->addString(date("d.m.Y H:i"), 10, 240 - 14);
     }
 }
