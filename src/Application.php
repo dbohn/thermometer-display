@@ -4,18 +4,20 @@ namespace Thermometer;
 
 use React\EventLoop\Factory;
 use React\EventLoop\LoopInterface;
+use Thermometer\Controllers\Controller;
+use Thermometer\Controllers\PortraitViewController;
 use Thermometer\Display\Screen;
-use Thermometer\Views\BackdropView;
-use Thermometer\Views\PortraitView;
 
 class Application
 {
+
+    use ResolvesControllers;
 
     protected Screen $screen;
 
     protected LoopInterface $loop;
 
-    protected BackdropView $view;
+    protected Controller $controller;
 
     protected $tickInterval = 60;
 
@@ -32,7 +34,7 @@ class Application
 
         $this->loop = Factory::create();
 
-        $this->view = $this->getInitialView();
+        $this->controller = $this->initializeController($this->getDefaultController());
 
         $this->registerShutdownHandler();
         $this->registerTick();
@@ -48,9 +50,9 @@ class Application
         $this->loop->run();
     }
 
-    public function getInitialView()
+    public function getDefaultController()
     {
-        return new PortraitView($this->screen->getWidth(), $this->screen->getHeight());
+        return PortraitViewController::class;
     }
 
     public function getScreen()
@@ -60,7 +62,7 @@ class Application
 
     public function tick()
     {
-        $this->screen->draw($this->view->render());
+        $this->callController('tick');
     }
 
     protected function registerShutdownHandler()
@@ -78,5 +80,14 @@ class Application
         $this->tickTimer = $this->loop->addPeriodicTimer($this->tickInterval, function () {
             $this->tick();
         });
+    }
+
+    protected function callController($method, ...$args)
+    {
+        $result = $this->controller->$method(...$args);
+
+        if (is_string($result)) {
+            $this->screen->draw($result);
+        }
     }
 }
