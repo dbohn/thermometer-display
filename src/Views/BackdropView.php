@@ -13,6 +13,8 @@ abstract class BackdropView
 
     protected $image;
 
+    protected $viewData = [];
+
     public abstract function viewFile(): string;
 
     public abstract function annotate(): void;
@@ -21,6 +23,13 @@ abstract class BackdropView
     {
         $this->width = $width;
         $this->height = $height;
+    }
+
+    public function with(array $data)
+    {
+        $this->viewData = array_merge($this->viewData, $data);
+
+        return $this;
     }
 
     public function render()
@@ -47,5 +56,10 @@ abstract class BackdropView
         $draw->setFillColor('black');
 
         $this->image->annotateImage($draw, $xPos, $yPos, $angle, $text);
+    }
+
+    public function __get($key)
+    {
+        return $this->viewData[$key] ?? null;
     }
 }

@@ -84,6 +84,10 @@ class Application
 
     protected function callController($method, ...$args)
     {
+        if (!method_exists($this->controller, $method)) {
+            return;
+        }
+
         $result = $this->controller->$method(...$args);
 
         if (is_string($result)) {

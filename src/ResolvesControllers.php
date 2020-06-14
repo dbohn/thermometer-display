@@ -4,6 +4,7 @@ namespace Thermometer;
 
 use InvalidArgumentException;
 use ReflectionClass;
+use ReflectionNamedType;
 use ReflectionParameter;
 use Thermometer\Views\BackdropView;
 
@@ -29,7 +30,11 @@ trait ResolvesControllers
             return $parameter->getDefaultValue();
         }
 
-        $type = $parameter->getType()->getName();
+        $typeParameter = $parameter->getType();
+        if (!($typeParameter instanceof ReflectionNamedType)) {
+            throw new InvalidArgumentException("This parameter should not be unnamed!");
+        }
+        $type = $typeParameter->getName();
 
         if ((new ReflectionClass($type))->isSubclassOf(BackdropView::class)) {
             return new $type($this->screen->getWidth(), $this->screen->getHeight());

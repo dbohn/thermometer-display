@@ -17,9 +17,9 @@ class PortraitViewController implements Controller
     public function tick()
     {
         $viewData = [
-            'date' => date('d.m.Y H:i'),
+            'date' => 'Datum: ' . date('d.m.Y H:i'),
         ];
 
-        return $this->view->render($viewData);
+        return $this->view->with($viewData)->render();
     }
 }
