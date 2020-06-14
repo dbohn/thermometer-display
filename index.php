@@ -3,50 +3,29 @@
 use React\EventLoop\Factory;
 use Thermometer\Display\Button;
 use Thermometer\Display\Screen;
+use Thermometer\Views\PortraitView;
 
 require_once "vendor/autoload.php";
 
 $width = 176;
 $height = 264;
 
-function createImage($width, $height)
-{
-    $im = new Imagick();
-    $im->setColorSpace(Imagick::COLORSPACE_GRAY);
-
-    $image = file_get_contents('views/build/status_portrait.GRAY');
-    $im->setSize($width, $height);
-    $im->setFormat('GRAY');
-    $im->readImageBlob($image);
-
-    $text = date("d.m.Y H:i:s");
-
-    $draw = new ImagickDraw();
-    //$draw->setFont('Arial');
-    $draw->setFontSize(14);
-    $draw->setFillColor('black');
-
-    $im->annotateImage($draw, 10, 20, 0, $text);
-
-    $im->posterizeImage(2, false);
-    $im->setImageDepth(1);
-    return $im->getImageBlob();
-}
-
 $screen = new Screen($width, $height);
 
+$view = new PortraitView($width, $height);
+
 $button = new Button();
-$button->register(function () use ($screen) {
+$button->register(function () use ($screen, $view) {
     echo "Button pressed!";
-    $screen->draw(createImage($screen->getWidth(), $screen->getHeight()));
+    $screen->draw($view->render());
 }, Button::KEY1, Button::EDGE_RISING);
 
 $screen->clear();
 
 $loop = Factory::create();
 
-$loop->addPeriodicTimer(60, function () use ($screen) {
-    $screen->draw(createImage($screen->getWidth(), $screen->getHeight()));
+$loop->addPeriodicTimer(60, function () use ($screen, $view) {
+    $screen->draw($view->render());
 });
 
 $loop->addSignal(SIGINT, function () use ($screen, $loop) {
@@ -56,6 +35,6 @@ $loop->addSignal(SIGINT, function () use ($screen, $loop) {
     $loop->stop();
 });
 
-$screen->draw(createImage($screen->getWidth(), $screen->getHeight()));
+$screen->draw($view->render());
 
 $loop->run();
