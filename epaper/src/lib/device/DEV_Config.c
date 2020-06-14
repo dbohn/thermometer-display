@@ -150,13 +150,6 @@ void DEV_Delay_ms(UDOUBLE xms)
 	}
 #endif
 #endif
-
-#ifdef JETSON
-	UDOUBLE i;
-	for(i=0; i < xms; i++) {
-		usleep(1000);
-	}
-#endif
 }
 
 static int DEV_Equipment_Testing(void)
@@ -271,20 +264,6 @@ UBYTE DEV_Module_Init(void)
 	DEV_GPIO_Init();
 	DEV_HARDWARE_SPI_begin("/dev/spidev0.0");
     DEV_HARDWARE_SPI_setSpeed(10000000);
-#endif
-
-#elif JETSON
-#ifdef USE_DEV_LIB
-	DEV_GPIO_Init();
-	printf("Software spi\r\n");
-	SYSFS_software_spi_begin();
-	SYSFS_software_spi_setBitOrder(SOFTWARE_SPI_MSBFIRST);
-	SYSFS_software_spi_setDataMode(SOFTWARE_SPI_Mode0);
-	SYSFS_software_spi_setClockDivider(SOFTWARE_SPI_CLOCK_DIV4);
-#elif USE_HARDWARE_LIB
-	printf("Write and read /dev/spidev0.0 \r\n");
-	DEV_GPIO_Init();
-	DEV_HARDWARE_SPI_begin("/dev/spidev0.0");
 #endif
 
 #endif

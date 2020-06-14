@@ -13,8 +13,11 @@ function createImage($width, $height)
 {
     $im = new Imagick();
     $im->setColorSpace(Imagick::COLORSPACE_GRAY);
-    $im->newImage($width, $height, new ImagickPixel('white'));
-    $im->setImageFormat('GRAY');
+
+    $image = file_get_contents('screens/build/status_portrait.GRAY');
+    $im->setSize($width, $height);
+    $im->setFormat('GRAY');
+    $im->readImageBlob($image);
 
     $text = date("d.m.Y H:i:s");
 
@@ -25,7 +28,7 @@ function createImage($width, $height)
 
     $im->annotateImage($draw, 10, 20, 0, $text);
 
-    $im->posterizeImage(2, true);
+    $im->posterizeImage(2, false);
     $im->setImageDepth(1);
     return $im->getImageBlob();
 }
@@ -47,7 +50,7 @@ $loop->addPeriodicTimer(60, function () use ($screen) {
 });
 
 $loop->addSignal(SIGINT, function () use ($screen, $loop) {
-    echo "Set display into sleep mode" . PHP_EOL;
+    echo "Put display into sleep mode" . PHP_EOL;
     $screen->sleep();
     echo "Bye!" . PHP_EOL;
     $loop->stop();
