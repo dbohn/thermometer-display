@@ -14,7 +14,7 @@ function createImage($width, $height)
     $im = new Imagick();
     $im->setColorSpace(Imagick::COLORSPACE_GRAY);
 
-    $image = file_get_contents('screens/build/status_portrait.GRAY');
+    $image = file_get_contents('views/build/status_portrait.GRAY');
     $im->setSize($width, $height);
     $im->setFormat('GRAY');
     $im->readImageBlob($image);
