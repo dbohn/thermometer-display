@@ -18,8 +18,25 @@ class PortraitViewController implements Controller
     {
         $viewData = [
             'date' => 'Datum: ' . date('d.m.Y H:i'),
+            'sections' => [
+                [
+                    'value' => '23.40',
+                    'name' => 'Kalt',
+                    'unit' => '°C',
+                ],
+                [
+                    'value' => '27.03',
+                    'name' => 'Temperiert',
+                    'unit' => '°C'
+                ],
+            ],
         ];
 
         return $this->view->with($viewData)->render();
+    }
+
+    public function buttonPressed($key)
+    {
+        echo "Button $key pressed!";
     }
 }

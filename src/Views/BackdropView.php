@@ -15,6 +15,10 @@ abstract class BackdropView
 
     protected $viewData = [];
 
+    public const ANCHOR_LEFT = Imagick::ALIGN_LEFT;
+    public const ANCHOR_CENTER = Imagick::ALIGN_CENTER;
+    public const ANCHOR_RIGHT = Imagick::ALIGN_RIGHT;
+
     public abstract function viewFile(): string;
 
     public abstract function annotate(): void;
@@ -48,12 +52,15 @@ abstract class BackdropView
         return $this->image->getImageBlob();
     }
 
-    public function addString($text, $xPos, $yPos, $fontSize = 14, $angle = 0): void
+    public function addString($text, $xPos, $yPos, $fontSize = 14, $angle = 0, $align = self::ANCHOR_LEFT): void
     {
         $draw = new ImagickDraw();
-        //$draw->setFont('Arial');
+        $draw->setFont('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf');
         $draw->setFontSize($fontSize);
         $draw->setFillColor('black');
+        $draw->setTextAntialias(false);
+
+        $draw->setTextAlignment($align);
 
         $this->image->annotateImage($draw, $xPos, $yPos, $angle, $text);
     }

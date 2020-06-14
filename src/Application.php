@@ -6,6 +6,7 @@ use React\EventLoop\Factory;
 use React\EventLoop\LoopInterface;
 use Thermometer\Controllers\Controller;
 use Thermometer\Controllers\PortraitViewController;
+use Thermometer\Display\Buttons;
 use Thermometer\Display\Screen;
 
 class Application
@@ -14,6 +15,8 @@ class Application
     use ResolvesControllers;
 
     protected Screen $screen;
+
+    protected Buttons $buttons;
 
     protected LoopInterface $loop;
 
@@ -30,14 +33,17 @@ class Application
 
     public function initialize()
     {
+        $this->loop = Factory::create();
+
         $this->screen = new Screen();
 
-        $this->loop = Factory::create();
+        $this->buttons = new Buttons($this->loop);
 
         $this->controller = $this->initializeController($this->getDefaultController());
 
         $this->registerShutdownHandler();
         $this->registerTick();
+        $this->registerButtonCallbacks();
 
         $this->screen->clear();
     }
@@ -73,6 +79,25 @@ class Application
             echo "Bye!" . PHP_EOL;
             $this->loop->stop();
         });
+    }
+
+    protected function registerButtonCallbacks()
+    {
+        // Variante 1: Eine Methode buttonPressed im Controller, die Taste als Argument bekommt
+        $this->buttons->register(fn () => $this->callController('buttonPressed', Buttons::KEY1), Buttons::KEY1, Buttons::EDGE_RISING);
+        $this->buttons->register(fn () => $this->callController('buttonPressed', Buttons::KEY2), Buttons::KEY2, Buttons::EDGE_RISING);
+        $this->buttons->register(fn () => $this->callController('buttonPressed', Buttons::KEY3), Buttons::KEY3, Buttons::EDGE_RISING);
+        $this->buttons->register(fn () => $this->callController('buttonPressed', Buttons::KEY4), Buttons::KEY4, Buttons::EDGE_RISING);
+
+        // Variante 2: Für jede Taste eine mögliche Callback-Funktion.
+        // callController ignoriert nicht existierende Handler!
+        /*$this->buttons->register(function () {
+            $this->callController('button1Pressed');
+        }, Buttons::KEY1, Buttons::EDGE_RISING);
+
+        $this->buttons->register(function () {
+            $this->callController('button2Pressed');
+        }, Buttons::KEY2, Buttons::EDGE_RISING);*/
     }
 
     protected function registerTick()

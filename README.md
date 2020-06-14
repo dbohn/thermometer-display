@@ -31,3 +31,18 @@ To build the libepaper library use the following command:
 cd epaper
 make
 ```
+
+## Compile view graphics
+
+The static part of each view is created using SVG images, that are converted to grayscale images using imagemagick and rsvg-convert.
+To install rsvg-convert on Raspberry Pi OS use this command:
+
+```sh
+sudo apt install librsvg2-bin
+```
+
+Navigate to the `views` subdirectory and execute:
+
+```sh
+make
+```
