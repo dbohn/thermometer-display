@@ -24,6 +24,8 @@ class Buttons
     protected $locked = [
         self::KEY1 => false,
         self::KEY2 => false,
+        self::KEY3 => false,
+        self::KEY4 => false,
     ];
 
     public function __construct(LoopInterface $loop)
