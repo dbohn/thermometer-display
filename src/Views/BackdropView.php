@@ -5,7 +5,7 @@ namespace Thermometer\Views;
 use Imagick;
 use ImagickDraw;
 
-abstract class BackdropView
+abstract class BackdropView implements View
 {
 
     protected $width;

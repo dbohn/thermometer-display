@@ -3,6 +3,8 @@
 namespace Thermometer\Display;
 
 use FFI;
+use WyriHaximus\React\Mutex\Lock;
+use WyriHaximus\React\Mutex\Memory;
 
 class Screen
 {
@@ -13,10 +15,13 @@ class Screen
     protected $width;
     protected $height;
 
+    protected $mutex;
+
+    protected const MUTEX_KEY = 'SCREEN_MUTEX';
+
     public function __construct($width = 176, $height = 264)
     {
         $this->ffi = FFI::load($this->libraryPath);
-        echo "Initializing" . PHP_EOL;
         $this->ffi->DEV_Module_Init();
         $this->ffi->EPD_2IN7_Init();
 
@@ -25,6 +30,8 @@ class Screen
         $this->buffer = FFI::new($bufferType);
         $this->width = $width;
         $this->height = $height;
+
+        $this->mutex = new Memory();
     }
 
     public function clear()
@@ -34,9 +41,18 @@ class Screen
 
     public function draw(string $imageData)
     {
-        FFI::memcpy($this->buffer, $imageData, min($this->bufferSize(), strlen($imageData)));
+        $this->mutex->acquire(self::MUTEX_KEY)->then(function ($lock) use ($imageData) {
+            // Check if we were able to acquire the lock
+            if (!($lock instanceof Lock)) {
+                return;
+            }
 
-        $this->ffi->EPD_2IN7_Display($this->buffer);
+            // Copy image to framebuffer and redraw screen
+            FFI::memcpy($this->buffer, $imageData, min($this->bufferSize(), strlen($imageData)));
+            $this->ffi->EPD_2IN7_Display($this->buffer);
+
+            $this->mutex->release($lock);
+        });
     }
 
     public function sleep()

@@ -3,6 +3,7 @@
 namespace Thermometer\Controllers;
 
 use InfluxDB\Client;
+use Thermometer\Responses\RedirectResponse;
 use Thermometer\Views\PortraitView;
 
 class PortraitViewController implements Controller
@@ -62,17 +63,17 @@ class PortraitViewController implements Controller
             'sections' => $sections,
         ];
 
-        return $this->view->with($viewData)->render();
+        return $this->view->with($viewData);
     }
 
     public function onPrimaryPressed()
     {
-        echo "Primary Button pressed" . PHP_EOL;
+        return new RedirectResponse(SystemInfoController::class);
     }
 
     public function onSecondaryPressed()
     {
-        echo "Secondary Button pressed" . PHP_EOL;
+        return $this->tick();
     }
 
     public function onPreviousPressed()

@@ -8,6 +8,8 @@ use Thermometer\Controllers\Controller;
 use Thermometer\Controllers\PortraitViewController;
 use Thermometer\Display\Buttons;
 use Thermometer\Display\Screen;
+use Thermometer\Responses\RedirectResponse;
+use Thermometer\Views\View;
 
 class Application
 {
@@ -39,7 +41,7 @@ class Application
 
         $this->buttons = new Buttons();
 
-        $this->controller = $this->initializeController($this->getDefaultController());
+        //$this->controller = $this->initializeController($this->getDefaultController());
 
         $this->registerShutdownHandler();
         $this->registerTick();
@@ -50,10 +52,16 @@ class Application
 
     public function run()
     {
-        // We execute the first tick manually to have some initial output
-        $this->tick();
+        $this->loadController($this->getDefaultController());
 
         $this->loop->run();
+    }
+
+    protected function loadController($controller)
+    {
+        $this->controller = $this->initializeController($controller);
+
+        $this->tick();
     }
 
     public function getDefaultController()
@@ -106,6 +114,14 @@ class Application
 
         if (is_string($result)) {
             $this->screen->draw($result);
+        }
+
+        if ($result instanceof View) {
+            $this->screen->draw($result->render());
+        }
+
+        if ($result instanceof RedirectResponse) {
+            $this->loadController($result->getDestination());
         }
     }
 }
