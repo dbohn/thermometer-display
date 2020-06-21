@@ -3,14 +3,14 @@
 namespace Thermometer\Controllers;
 
 use Thermometer\Responses\RedirectResponse;
-use Thermometer\Views\PortraitView;
+use Thermometer\Views\SystemInfoView;
 
 class SystemInfoController implements Controller
 {
 
-    protected PortraitView $view;
+    protected SystemInfoView $view;
 
-    public function __construct(PortraitView $view)
+    public function __construct(SystemInfoView $view)
     {
         $this->view = $view;
     }
@@ -19,17 +19,20 @@ class SystemInfoController implements Controller
     {
 
         $viewData = [
-            'date' => date('d.m.Y H:i'),
-            'sections' => [
-                [
-                    'value' => 'INFO',
-                    'name' => 'INFO',
-                    'unit' => '',
-                ]
+            'info' => [
+                'Hostname' => gethostname(),
+                'WiFi Network' => trim(`iwgetid -r`),
+                'IPv4' => $this->parseIPv4Address(`hostname -I`),
             ],
         ];
 
-        return $this->view->with($viewData)->render();
+        return $this->view->with($viewData);
+    }
+
+    protected function parseIPv4Address($ip)
+    {
+        $fragments = explode(" ", $ip);
+        return $fragments[0];
     }
 
     public function onPrimaryPressed()
