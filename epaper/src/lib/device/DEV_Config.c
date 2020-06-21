@@ -152,49 +152,6 @@ void DEV_Delay_ms(UDOUBLE xms)
 #endif
 }
 
-static int DEV_Equipment_Testing(void)
-{
-	int i;
-	int fd;
-	char value_str[20];
-	fd = open("/etc/issue", O_RDONLY);
-    //printf("Current environment: ");
-	while(1) {
-		if (fd < 0) {
-			//Debug( "Read failed Pin\n");
-			return -1;
-		}
-		for(i=0;; i++) {
-			if (read(fd, &value_str[i], 1) < 0) {
-				//Debug( "failed to read value!\n");
-				return -1;
-			}
-			if(value_str[i] ==32) {
-				printf("\r\n");
-				break;
-			}
-			printf("%c",value_str[i]);
-		}
-		break;
-	}
-#ifdef RPI
-	if(i<5) {
-		printf("Unrecognizable\r\n");
-	} else {
-		char RPI_System[10]   = {"Raspbian"};
-		for(i=0; i<6; i++) {
-			if(RPI_System[i]!= value_str[i]) {
-				printf("Please make JETSON !!!!!!!!!!\r\n");
-				return -1;
-			}
-		}
-	}
-#endif
-	return 0;
-}
-
-
-
 void DEV_GPIO_Init(void)
 {
 #ifdef RPI
@@ -224,9 +181,6 @@ Info:
 UBYTE DEV_Module_Init(void)
 {
     printf("/***********************************/ \r\n");
-	if(DEV_Equipment_Testing() < 0) {
-		return 1;
-	}
 #ifdef RPI
 #ifdef USE_BCM2835_LIB
 	if(!bcm2835_init()) {

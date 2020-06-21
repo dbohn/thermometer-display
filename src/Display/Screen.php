@@ -34,6 +34,11 @@ class Screen
         $this->mutex = new Memory();
     }
 
+    public function __destruct()
+    {
+        $this->ffi->DEV_Module_Exit();
+    }
+
     public function clear()
     {
         $this->ffi->EPD_2IN7_Clear();
