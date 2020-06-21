@@ -37,7 +37,7 @@ class Application
 
         $this->screen = new Screen();
 
-        $this->buttons = new Buttons($this->loop);
+        $this->buttons = new Buttons();
 
         $this->controller = $this->initializeController($this->getDefaultController());
 
@@ -83,21 +83,10 @@ class Application
 
     protected function registerButtonCallbacks()
     {
-        // Variante 1: Eine Methode buttonPressed im Controller, die Taste als Argument bekommt
-        $this->buttons->register(fn () => $this->callController('buttonPressed', Buttons::KEY1), Buttons::KEY1, Buttons::EDGE_RISING);
-        $this->buttons->register(fn () => $this->callController('buttonPressed', Buttons::KEY2), Buttons::KEY2, Buttons::EDGE_RISING);
-        $this->buttons->register(fn () => $this->callController('buttonPressed', Buttons::KEY3), Buttons::KEY3, Buttons::EDGE_RISING);
-        $this->buttons->register(fn () => $this->callController('buttonPressed', Buttons::KEY4), Buttons::KEY4, Buttons::EDGE_RISING);
-
-        // Variante 2: Für jede Taste eine mögliche Callback-Funktion.
-        // callController ignoriert nicht existierende Handler!
-        /*$this->buttons->register(function () {
-            $this->callController('button1Pressed');
-        }, Buttons::KEY1, Buttons::EDGE_RISING);
-
-        $this->buttons->register(function () {
-            $this->callController('button2Pressed');
-        }, Buttons::KEY2, Buttons::EDGE_RISING);*/
+        $this->buttons->register(fn () => $this->callController('onPrimaryPressed'), Buttons::PRIMARY, Buttons::EDGE_RISING);
+        $this->buttons->register(fn () => $this->callController('onPreviousPressed'), Buttons::PREVIOUS, Buttons::EDGE_RISING);
+        $this->buttons->register(fn () => $this->callController('onNextPressed'), Buttons::NEXT, Buttons::EDGE_RISING);
+        $this->buttons->register(fn () => $this->callController('onSecondaryPressed'), Buttons::SECONDARY, Buttons::EDGE_RISING);
     }
 
     protected function registerTick()

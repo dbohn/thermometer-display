@@ -65,8 +65,23 @@ class PortraitViewController implements Controller
         return $this->view->with($viewData)->render();
     }
 
-    public function buttonPressed($key)
+    public function onPrimaryPressed()
     {
-        echo "Button $key pressed!";
+        echo "Primary Button pressed" . PHP_EOL;
+    }
+
+    public function onSecondaryPressed()
+    {
+        echo "Secondary Button pressed" . PHP_EOL;
+    }
+
+    public function onPreviousPressed()
+    {
+        echo "Previous Button pressed" . PHP_EOL;
+    }
+
+    public function onNextPressed()
+    {
+        echo "Next Button pressed" . PHP_EOL;
     }
 }
