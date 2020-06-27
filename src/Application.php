@@ -2,6 +2,8 @@
 
 namespace Thermometer;
 
+use InfluxDB\Client;
+use InfluxDB\Database;
 use React\EventLoop\Factory;
 use React\EventLoop\LoopInterface;
 use Thermometer\Controllers\Controller;
@@ -28,20 +30,24 @@ class Application
 
     protected $tickTimer;
 
-    public function __construct()
-    {
-        
-    }
-
     public function initialize()
     {
+        $this->bind(Client::class, fn () => new Client(
+            $_ENV['INFLUXDB_HOST'],
+            $_ENV['INFLUXDB_PORT'],
+            $_ENV['INFLUXDB_USER'],
+            $_ENV['INFLUXDB_PASSWORD'],
+            $_ENV['INFLUXDB_SSL'],
+            $_ENV['INFLUXDB_VERIFY']
+        ));
+
+        $this->bind(Database::class, fn ($app) => $app->make(Client::class)->selectDB($_ENV['INFLUXDB_DB']));
+
         $this->loop = Factory::create();
 
         $this->screen = new Screen();
 
         $this->buttons = new Buttons();
-
-        //$this->controller = $this->initializeController($this->getDefaultController());
 
         $this->registerShutdownHandler();
         $this->registerTick();
@@ -59,7 +65,7 @@ class Application
 
     protected function loadController($controller)
     {
-        $this->controller = $this->initializeController($controller);
+        $this->controller = $this->make($controller);
 
         $this->tick();
     }

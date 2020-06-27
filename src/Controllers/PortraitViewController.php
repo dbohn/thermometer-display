@@ -2,8 +2,8 @@
 
 namespace Thermometer\Controllers;
 
-use InfluxDB\Client;
 use Thermometer\Responses\RedirectResponse;
+use Thermometer\Services\Measurements;
 use Thermometer\Views\PortraitView;
 
 class PortraitViewController implements Controller
@@ -12,38 +12,22 @@ class PortraitViewController implements Controller
     protected PortraitView $view;
 
     protected $sensors = [];
-    protected Client $client;
+    protected Measurements $measurements;
 
     protected $units = [
         'celsius' => '° C',
     ];
 
-    public function __construct(PortraitView $view)
+    public function __construct(PortraitView $view, Measurements $measurements)
     {
         $this->view = $view;
         $this->sensors = require __DIR__ . '/../../config/sensors.php';
-        $this->client = new Client(
-            $_ENV['INFLUXDB_HOST'],
-            $_ENV['INFLUXDB_PORT'],
-            $_ENV['INFLUXDB_USER'],
-            $_ENV['INFLUXDB_PASSWORD'],
-            $_ENV['INFLUXDB_SSL'],
-            $_ENV['INFLUXDB_VERIFY']
-        );
+        $this->measurements = $measurements;
     }
 
     protected function queryMeasurements()
     {
-        $database = $this->client->selectDB($_ENV['INFLUXDB_DB']);
-
-        $result = $database->query('SELECT last(value) FROM ' . implode(', ', array_map(fn ($sensor) => $sensor['metric'], $this->sensors)));
-
-        $measurements = [];
-        foreach ($this->sensors as $sensor) {
-            $measurements[$sensor['metric']] = $result->getPoints($sensor['metric'])[0]['last'];
-        }
-
-        return $measurements;
+        return $this->measurements->latest($this->sensors);
     }
 
     public function tick()
